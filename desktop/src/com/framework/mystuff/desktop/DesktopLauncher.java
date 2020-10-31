@@ -1,12 +1,12 @@
 package com.framework.mystuff.desktop;
 
+import Simulator.SimulatorDriver;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.framework.mystuff.Skeleton;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new Skeleton(), config);
+		new LwjglApplication(new SimulatorDriver(), config);
 	}
 }

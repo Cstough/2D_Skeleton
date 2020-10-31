@@ -15,22 +15,24 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+
 public class GameScreen implements Screen {
 
-    Skeleton game;
+    Driver game;
     SpriteBatch batch;
     Viewport viewport;
-    Camera camera;
-    Sprite spr;
+    MovableCamera camera;
+    ArrayList<EntityBase> entities;
 
-    public GameScreen(Skeleton game) {
+    public GameScreen(Driver game) {
+        this.entities = new ArrayList<EntityBase>();
         this.game = game;
         this.batch = game.batch;
-        this.camera = new OrthographicCamera();
-        this.viewport = new StretchViewport(800, 600, camera);
+        this.camera = new MovableCamera();
+        this.viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camera);
         this.viewport.apply();
-        this.camera.position.set(0, 0, 0);
-        spr = new Sprite(new Texture(Gdx.files.internal("badlogic.jpg")), 100, 100);
+        this.camera.position.set(0, 0,0);
         Gdx.graphics.setTitle("GameScreen!");
     }
 
@@ -41,50 +43,33 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Update(delta);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(spr.getTexture(), spr.getX(), spr.getY());
+
+        for(EntityBase entity : entities) {
+            entity.OnRender(batch);
+        }
+
         batch.end();
     }
 
     private void Update(float delta) {
 
-        Vector2 move = new Vector2(0, 0);
+        for(EntityBase entity : entities) {
+            entity.OnUpdate(delta);
+        }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            move.y+=1;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            move.x-=1;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            move.y-=1;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            move.x+=1;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            if(((OrthographicCamera)camera).zoom < 2f) {
-                ((OrthographicCamera)camera).zoom+=delta;
-            }
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.Z)) {
-            if(((OrthographicCamera)camera).zoom > 0.5f) {
-                ((OrthographicCamera)camera).zoom-=delta;
-            }
-        }
-        move = move.nor();
-        move = move.scl(5.0f);
-        camera.position.add(new Vector3(move, 0));
+        camera.Move(delta);
     }
 
     @Override
     public void resize(int width, int height) {
-
+        this.camera.viewportWidth = width;
+        this.camera.viewportHeight = height;
     }
 
     @Override
@@ -104,6 +89,24 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        for(EntityBase entity : entities) {
+            entity.OnDestroy();
+        }
+    }
 
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~Entity~Management~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+    protected void AddEntity(EntityBase e) {
+        if(!this.entities.contains(e)) {
+            this.entities.add(e);
+            e.OnCreate();
+        }
+    }
+
+    protected void RemoveEntity(EntityBase e) {
+        if(this.entities.contains(e)) {
+            e.OnDestroy();
+            this.entities.remove(e);
+        }
     }
 }

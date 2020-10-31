@@ -5,14 +5,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class Skeleton extends Game {
+public class Driver extends Game {
 
 	public SpriteBatch batch;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		setScreen(new GameScreen(this));
+		//setScreen(new GameScreen(this));
 	}
 
 	@Override
